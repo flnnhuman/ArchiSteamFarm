@@ -153,6 +153,10 @@ public sealed class WebBrowser : IDisposable {
 					}
 				}
 
+				if (response.Length > Array.MaxLength) {
+					throw new InvalidOperationException(nameof(response.Length));
+				}
+
 				progressReporter?.Report(0);
 
 #pragma warning disable CA2000 // False positive, we're actually wrapping it in the using clause below exactly for that purpose
@@ -805,7 +809,7 @@ public sealed class WebBrowser : IDisposable {
 				Uri? redirectUri = response.Headers.Location;
 
 				if (redirectUri == null) {
-					ArchiLogger.LogNullError(nameof(redirectUri));
+					ArchiLogger.LogNullError(redirectUri);
 
 					return null;
 				}

@@ -113,6 +113,10 @@ internal sealed class CrossProcessFileBasedSemaphore : ICrossProcessSemaphore, I
 		try {
 			stopwatch.Stop();
 
+			if (stopwatch.ElapsedMilliseconds >= int.MaxValue) {
+				return false;
+			}
+
 			millisecondsTimeout -= (int) stopwatch.ElapsedMilliseconds;
 
 			if (millisecondsTimeout <= 0) {
@@ -158,7 +162,7 @@ internal sealed class CrossProcessFileBasedSemaphore : ICrossProcessSemaphore, I
 		string? directoryPath = Path.GetDirectoryName(FilePath);
 
 		if (string.IsNullOrEmpty(directoryPath)) {
-			ASF.ArchiLogger.LogNullError(nameof(directoryPath));
+			ASF.ArchiLogger.LogNullError(directoryPath);
 
 			return;
 		}

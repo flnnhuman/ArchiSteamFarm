@@ -166,7 +166,7 @@ public sealed class Bot : IAsyncDisposable {
 				string filePath = GetFilePath(fileType);
 
 				if (string.IsNullOrEmpty(filePath)) {
-					ArchiLogger.LogNullError(nameof(filePath));
+					ArchiLogger.LogNullError(filePath);
 
 					yield break;
 				}
@@ -257,7 +257,7 @@ public sealed class Bot : IAsyncDisposable {
 	private Timer? SendItemsTimer;
 #pragma warning restore CA2213 // False positive, .NET Framework can't understand DisposeAsync()
 
-	private bool SteamParentalActive = true;
+	private bool SteamParentalActive;
 	private SteamSaleEvent? SteamSaleEvent;
 	private string? TwoFactorCode;
 	private byte TwoFactorCodeFailures;
@@ -610,9 +610,7 @@ public sealed class Bot : IAsyncDisposable {
 				continue;
 			}
 
-			ushort maxSetsAllowed = (ushort) (maxItems - result.Count);
-			maxSetsAllowed -= (ushort) (maxSetsAllowed % itemsPerSet);
-			maxSetsAllowed /= itemsPerSet;
+			ushort maxSetsAllowed = (ushort) ((maxItems - result.Count) / itemsPerSet);
 			ushort realSetsToExtract = (ushort) Math.Min(setsToExtract, maxSetsAllowed);
 
 			if (realSetsToExtract == 0) {
@@ -658,13 +656,13 @@ public sealed class Bot : IAsyncDisposable {
 			string lastPage = htmlNode.TextContent;
 
 			if (string.IsNullOrEmpty(lastPage)) {
-				ArchiLogger.LogNullError(nameof(lastPage));
+				ArchiLogger.LogNullError(lastPage);
 
 				return null;
 			}
 
 			if (!byte.TryParse(lastPage, out maxPages) || (maxPages == 0)) {
-				ArchiLogger.LogNullError(nameof(maxPages));
+				ArchiLogger.LogNullError(maxPages);
 
 				return null;
 			}
@@ -881,7 +879,7 @@ public sealed class Bot : IAsyncDisposable {
 
 				break;
 			case ASF.EUserInputType.SteamParentalCode:
-				if (inputValue.Length != BotConfig.SteamParentalCodeLength) {
+				if ((inputValue.Length != BotConfig.SteamParentalCodeLength) || inputValue.Any(static character => character is < '0' or > '9')) {
 					return false;
 				}
 
@@ -955,7 +953,7 @@ public sealed class Bot : IAsyncDisposable {
 		string unusedKeysFilePath = GetFilePath(EFileType.KeysToRedeemUnused);
 
 		if (string.IsNullOrEmpty(unusedKeysFilePath)) {
-			ASF.ArchiLogger.LogNullError(nameof(unusedKeysFilePath));
+			ASF.ArchiLogger.LogNullError(unusedKeysFilePath);
 
 			return false;
 		}
@@ -973,7 +971,7 @@ public sealed class Bot : IAsyncDisposable {
 		string usedKeysFilePath = GetFilePath(EFileType.KeysToRedeemUsed);
 
 		if (string.IsNullOrEmpty(usedKeysFilePath)) {
-			ASF.ArchiLogger.LogNullError(nameof(usedKeysFilePath));
+			ASF.ArchiLogger.LogNullError(usedKeysFilePath);
 
 			return false;
 		}
@@ -1078,7 +1076,7 @@ public sealed class Bot : IAsyncDisposable {
 			KeyValue productInfo = productInfoApp.KeyValues;
 
 			if (productInfo == KeyValue.Invalid) {
-				ArchiLogger.LogNullError(nameof(productInfo));
+				ArchiLogger.LogNullError(productInfo);
 
 				break;
 			}
@@ -1155,7 +1153,7 @@ public sealed class Bot : IAsyncDisposable {
 
 			foreach (string dlcAppIDsText in dlcAppIDsTexts) {
 				if (!uint.TryParse(dlcAppIDsText, out uint dlcAppID) || (dlcAppID == 0)) {
-					ArchiLogger.LogNullError(nameof(dlcAppID));
+					ArchiLogger.LogNullError(dlcAppID);
 
 					break;
 				}
@@ -1216,7 +1214,7 @@ public sealed class Bot : IAsyncDisposable {
 
 		foreach (SteamApps.PICSProductInfoCallback.PICSProductInfo productInfo in productInfoResultSet.Results.SelectMany(static productInfoResult => productInfoResult.Packages).Where(static productInfoPackages => productInfoPackages.Key != 0).Select(static productInfoPackages => productInfoPackages.Value)) {
 			if (productInfo.KeyValues == KeyValue.Invalid) {
-				ArchiLogger.LogNullError(nameof(productInfo));
+				ArchiLogger.LogNullError(productInfo);
 
 				return null;
 			}
@@ -1235,7 +1233,7 @@ public sealed class Bot : IAsyncDisposable {
 
 				foreach (string? appIDText in appIDsKv.Children.Select(static app => app.Value)) {
 					if (!uint.TryParse(appIDText, out uint appID) || (appID == 0)) {
-						ArchiLogger.LogNullError(nameof(appID));
+						ArchiLogger.LogNullError(appID);
 
 						return null;
 					}
@@ -1392,7 +1390,7 @@ public sealed class Bot : IAsyncDisposable {
 		string configFile = GetFilePath(EFileType.Config);
 
 		if (string.IsNullOrEmpty(configFile)) {
-			ArchiLogger.LogNullError(nameof(configFile));
+			ArchiLogger.LogNullError(configFile);
 
 			return;
 		}
@@ -1526,7 +1524,7 @@ public sealed class Bot : IAsyncDisposable {
 		string configFilePath = GetFilePath(botName, EFileType.Config);
 
 		if (string.IsNullOrEmpty(configFilePath)) {
-			ASF.ArchiLogger.LogNullError(nameof(configFilePath));
+			ASF.ArchiLogger.LogNullError(configFilePath);
 
 			return;
 		}
@@ -1555,7 +1553,7 @@ public sealed class Bot : IAsyncDisposable {
 		string databaseFilePath = GetFilePath(botName, EFileType.Database);
 
 		if (string.IsNullOrEmpty(databaseFilePath)) {
-			ASF.ArchiLogger.LogNullError(nameof(databaseFilePath));
+			ASF.ArchiLogger.LogNullError(databaseFilePath);
 
 			return;
 		}
@@ -1584,7 +1582,7 @@ public sealed class Bot : IAsyncDisposable {
 			bot = new Bot(botName, botConfig, botDatabase);
 
 			if (!Bots.TryAdd(botName, bot)) {
-				ASF.ArchiLogger.LogNullError(nameof(bot));
+				ASF.ArchiLogger.LogNullError(bot);
 
 				await bot.DisposeAsync().ConfigureAwait(false);
 
@@ -1648,7 +1646,7 @@ public sealed class Bot : IAsyncDisposable {
 			string newFilePath = GetFilePath(newBotName, fileType);
 
 			if (string.IsNullOrEmpty(newFilePath)) {
-				ArchiLogger.LogNullError(nameof(newFilePath));
+				ArchiLogger.LogNullError(newFilePath);
 
 				return false;
 			}
@@ -1711,7 +1709,7 @@ public sealed class Bot : IAsyncDisposable {
 			string mobileAuthenticatorFilePath = GetFilePath(EFileType.MobileAuthenticator);
 
 			if (string.IsNullOrEmpty(mobileAuthenticatorFilePath)) {
-				ArchiLogger.LogNullError(nameof(mobileAuthenticatorFilePath));
+				ArchiLogger.LogNullError(mobileAuthenticatorFilePath);
 
 				return;
 			}
@@ -1724,7 +1722,7 @@ public sealed class Bot : IAsyncDisposable {
 		string keysToRedeemFilePath = GetFilePath(EFileType.KeysToRedeem);
 
 		if (string.IsNullOrEmpty(keysToRedeemFilePath)) {
-			ArchiLogger.LogNullError(nameof(keysToRedeemFilePath));
+			ArchiLogger.LogNullError(keysToRedeemFilePath);
 
 			return;
 		}
@@ -1924,7 +1922,7 @@ public sealed class Bot : IAsyncDisposable {
 
 		foreach (string? badgeUri in linkElements.Select(static htmlNode => htmlNode.GetAttribute("href"))) {
 			if (string.IsNullOrEmpty(badgeUri)) {
-				ArchiLogger.LogNullError(nameof(badgeUri));
+				ArchiLogger.LogNullError(badgeUri);
 
 				return null;
 			}
@@ -1933,7 +1931,7 @@ public sealed class Bot : IAsyncDisposable {
 			string appIDText = badgeUri.Split('?', StringSplitOptions.RemoveEmptyEntries)[0].Split('/', StringSplitOptions.RemoveEmptyEntries)[^1];
 
 			if (!uint.TryParse(appIDText, out uint appID) || (appID == 0)) {
-				ArchiLogger.LogNullError(nameof(appID));
+				ArchiLogger.LogNullError(appID);
 
 				return null;
 			}
@@ -2018,7 +2016,7 @@ public sealed class Bot : IAsyncDisposable {
 			MobileAuthenticator? authenticator = JsonConvert.DeserializeObject<MobileAuthenticator>(json);
 
 			if (authenticator == null) {
-				ArchiLogger.LogNullError(nameof(authenticator));
+				ArchiLogger.LogNullError(authenticator);
 
 				return;
 			}
@@ -2231,8 +2229,14 @@ public sealed class Bot : IAsyncDisposable {
 	}
 
 	private static async Task LimitLoginRequestsAsync() {
-		if ((ASF.LoginSemaphore == null) || (ASF.LoginRateLimitingSemaphore == null)) {
-			ASF.ArchiLogger.LogNullError($"{nameof(ASF.LoginSemaphore)} || {nameof(ASF.LoginRateLimitingSemaphore)}");
+		if (ASF.LoginSemaphore == null) {
+			ASF.ArchiLogger.LogNullError(ASF.LoginSemaphore);
+
+			return;
+		}
+
+		if (ASF.LoginRateLimitingSemaphore == null) {
+			ASF.ArchiLogger.LogNullError(ASF.LoginRateLimitingSemaphore);
 
 			return;
 		}
@@ -2280,7 +2284,7 @@ public sealed class Bot : IAsyncDisposable {
 		string sentryFilePath = GetFilePath(EFileType.SentryFile);
 
 		if (string.IsNullOrEmpty(sentryFilePath)) {
-			ArchiLogger.LogNullError(nameof(sentryFilePath));
+			ArchiLogger.LogNullError(sentryFilePath);
 
 			return;
 		}
@@ -2393,7 +2397,6 @@ public sealed class Bot : IAsyncDisposable {
 		EResult lastLogOnResult = LastLogOnResult;
 		LastLogOnResult = EResult.Invalid;
 		HeartBeatFailures = 0;
-		SteamParentalActive = true;
 		StopConnectionFailureTimer();
 		StopPlayingWasBlockedTimer();
 
@@ -2558,8 +2561,20 @@ public sealed class Bot : IAsyncDisposable {
 	private async Task OnIncomingChatMessage(CChatRoom_IncomingChatMessage_Notification notification) {
 		ArgumentNullException.ThrowIfNull(notification);
 
-		if ((notification.chat_group_id == 0) || (notification.chat_id == 0) || (notification.steamid_sender == 0)) {
-			ArchiLogger.LogNullError($"{nameof(notification.chat_group_id)} || {nameof(notification.chat_id)} || {nameof(notification.steamid_sender)}");
+		if (notification.chat_group_id == 0) {
+			ArchiLogger.LogNullError(notification.chat_group_id);
+
+			return;
+		}
+
+		if (notification.chat_id == 0) {
+			ArchiLogger.LogNullError(notification.chat_id);
+
+			return;
+		}
+
+		if (notification.steamid_sender == 0) {
+			ArchiLogger.LogNullError(notification.steamid_sender);
 
 			return;
 		}
@@ -2599,7 +2614,7 @@ public sealed class Bot : IAsyncDisposable {
 		ArgumentNullException.ThrowIfNull(notification);
 
 		if (notification.steamid_friend == 0) {
-			ArchiLogger.LogNullError(nameof(notification.steamid_friend));
+			ArchiLogger.LogNullError(notification.steamid_friend);
 
 			return;
 		}
@@ -2840,12 +2855,12 @@ public sealed class Bot : IAsyncDisposable {
 				}
 
 				if (callback.ParentalSettings != null) {
-					(bool isSteamParentalEnabled, string? steamParentalCode) = ValidateSteamParental(callback.ParentalSettings, BotConfig.SteamParentalCode);
+					(SteamParentalActive, string? steamParentalCode) = ValidateSteamParental(callback.ParentalSettings, BotConfig.SteamParentalCode, Program.SteamParentalGeneration);
 
-					if (isSteamParentalEnabled) {
-						SteamParentalActive = true;
-
+					if (SteamParentalActive) {
+						// Steam parental enabled
 						if (!string.IsNullOrEmpty(steamParentalCode)) {
+							// We were able to automatically generate it, potentially with help of the config
 							if (BotConfig.SteamParentalCode != steamParentalCode) {
 								// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
 								if (!SetUserInput(ASF.EUserInputType.SteamParentalCode, steamParentalCode!)) {
@@ -2856,7 +2871,8 @@ public sealed class Bot : IAsyncDisposable {
 									break;
 								}
 							}
-						} else if (string.IsNullOrEmpty(BotConfig.SteamParentalCode) || (BotConfig.SteamParentalCode!.Length != BotConfig.SteamParentalCodeLength)) {
+						} else {
+							// We failed to generate the pin ourselves, ask the user
 							RequiredInput = ASF.EUserInputType.SteamParentalCode;
 
 							steamParentalCode = await Logging.GetUserInput(ASF.EUserInputType.SteamParentalCode, BotName).ConfigureAwait(false);
@@ -2870,22 +2886,10 @@ public sealed class Bot : IAsyncDisposable {
 								break;
 							}
 						}
-					} else {
-						SteamParentalActive = false;
 					}
-				} else if (SteamParentalActive && !string.IsNullOrEmpty(BotConfig.SteamParentalCode) && (BotConfig.SteamParentalCode!.Length != BotConfig.SteamParentalCodeLength)) {
-					RequiredInput = ASF.EUserInputType.SteamParentalCode;
-
-					string? steamParentalCode = await Logging.GetUserInput(ASF.EUserInputType.SteamParentalCode, BotName).ConfigureAwait(false);
-
-					// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
-					if (string.IsNullOrEmpty(steamParentalCode) || !SetUserInput(ASF.EUserInputType.SteamParentalCode, steamParentalCode!)) {
-						ArchiLogger.LogGenericError(string.Format(CultureInfo.CurrentCulture, Strings.ErrorIsInvalid, nameof(steamParentalCode)));
-
-						Stop();
-
-						break;
-					}
+				} else {
+					// Steam parental disabled
+					SteamParentalActive = false;
 				}
 
 				ArchiWebHandler.OnVanityURLChanged(callback.VanityURL);
@@ -3008,7 +3012,7 @@ public sealed class Bot : IAsyncDisposable {
 		string sentryFilePath = GetFilePath(EFileType.SentryFile);
 
 		if (string.IsNullOrEmpty(sentryFilePath)) {
-			ArchiLogger.LogNullError(nameof(sentryFilePath));
+			ArchiLogger.LogNullError(sentryFilePath);
 
 			return;
 		}
@@ -3222,8 +3226,14 @@ public sealed class Bot : IAsyncDisposable {
 			while (IsConnectedAndLoggedOn && BotDatabase.HasGamesToRedeemInBackground) {
 				(string? key, string? name) = BotDatabase.GetGameToRedeemInBackground();
 
-				if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(name)) {
-					ArchiLogger.LogNullError($"{nameof(key)} || {nameof(name)}");
+				if (string.IsNullOrEmpty(key)) {
+					ArchiLogger.LogNullError(key);
+
+					break;
+				}
+
+				if (string.IsNullOrEmpty(name)) {
+					ArchiLogger.LogNullError(name);
 
 					break;
 				}
@@ -3298,7 +3308,7 @@ public sealed class Bot : IAsyncDisposable {
 				string filePath = GetFilePath(redeemed ? EFileType.KeysToRedeemUsed : EFileType.KeysToRedeemUnused);
 
 				if (string.IsNullOrEmpty(filePath)) {
-					ArchiLogger.LogNullError(nameof(filePath));
+					ArchiLogger.LogNullError(filePath);
 
 					return;
 				}
@@ -3555,11 +3565,15 @@ public sealed class Bot : IAsyncDisposable {
 		PlayingWasBlockedTimer = null;
 	}
 
-	private (bool IsSteamParentalEnabled, string? SteamParentalCode) ValidateSteamParental(ParentalSettings settings, string? steamParentalCode = null) {
+	private (bool IsSteamParentalEnabled, string? SteamParentalCode) ValidateSteamParental(ParentalSettings settings, string? steamParentalCode = null, bool allowGeneration = true) {
 		ArgumentNullException.ThrowIfNull(settings);
 
 		if (!settings.is_enabled) {
 			return (false, null);
+		}
+
+		if (settings.passwordhash.Length > byte.MaxValue) {
+			throw new ArgumentOutOfRangeException(nameof(settings));
 		}
 
 		ArchiCryptoHelper.EHashingMethod steamParentalHashingMethod;
@@ -3579,9 +3593,11 @@ public sealed class Bot : IAsyncDisposable {
 				return (true, null);
 		}
 
-		if (steamParentalCode?.Length == BotConfig.SteamParentalCodeLength) {
+		if (!string.IsNullOrEmpty(steamParentalCode)) {
 			byte i = 0;
-			byte[] password = new byte[steamParentalCode.Length];
+
+			// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
+			byte[] password = new byte[steamParentalCode!.Length];
 
 			foreach (char character in steamParentalCode.TakeWhile(static character => character is >= '0' and <= '9')) {
 				password[i++] = (byte) character;
@@ -3594,6 +3610,10 @@ public sealed class Bot : IAsyncDisposable {
 					return (true, steamParentalCode);
 				}
 			}
+		}
+
+		if (!allowGeneration) {
+			return (true, null);
 		}
 
 		ArchiLogger.LogGenericInfo(Strings.BotGeneratingSteamParentalCode);

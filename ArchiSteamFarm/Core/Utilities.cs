@@ -113,16 +113,10 @@ public static class Utilities {
 	}
 
 	[PublicAPI]
-	public static async void InBackground<T>(Func<T> function, bool longRunning = false) {
+	public static void InBackground<T>(Func<T> function, bool longRunning = false) {
 		ArgumentNullException.ThrowIfNull(function);
 
-		TaskCreationOptions options = TaskCreationOptions.DenyChildAttach;
-
-		if (longRunning) {
-			options |= TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness;
-		}
-
-		await Task.Factory.StartNew(function, CancellationToken.None, options, TaskScheduler.Default).ConfigureAwait(false);
+		InBackground(void() => function(), longRunning);
 	}
 
 	[PublicAPI]
@@ -285,9 +279,28 @@ public static class Utilities {
 		}
 
 		Result result = Zxcvbn.Core.EvaluatePassword(password, forbiddenPhrases);
-		FeedbackItem feedback = result.Feedback;
 
-		return (result.Score < 4, string.IsNullOrEmpty(feedback.Warning) ? feedback.Suggestions.FirstOrDefault() : feedback.Warning);
+		IList<string>? suggestions = result.Feedback.Suggestions;
+
+		if (!string.IsNullOrEmpty(result.Feedback.Warning)) {
+			suggestions ??= new List<string>(1);
+
+			suggestions.Insert(0, result.Feedback.Warning);
+		}
+
+		if (suggestions != null) {
+			for (byte i = 0; i < suggestions.Count; i++) {
+				string suggestion = suggestions[i];
+
+				if ((suggestion.Length == 0) || (suggestion[^1] == '.')) {
+					continue;
+				}
+
+				suggestions[i] = $"{suggestion}.";
+			}
+		}
+
+		return (result.Score < 4, suggestions is { Count: > 0 } ? string.Join(" ", suggestions.Where(static suggestion => suggestion.Length > 0)) : null);
 	}
 
 	internal static void WarnAboutIncompleteTranslation(ResourceManager resourceManager) {
@@ -305,7 +318,7 @@ public static class Utilities {
 		ResourceSet? defaultResourceSet = resourceManager.GetResourceSet(CultureInfo.GetCultureInfo("en-US"), true, true);
 
 		if (defaultResourceSet == null) {
-			ASF.ArchiLogger.LogNullError(nameof(defaultResourceSet));
+			ASF.ArchiLogger.LogNullError(defaultResourceSet);
 
 			return;
 		}
@@ -313,7 +326,7 @@ public static class Utilities {
 		HashSet<DictionaryEntry> defaultStringObjects = defaultResourceSet.Cast<DictionaryEntry>().ToHashSet();
 
 		if (defaultStringObjects.Count == 0) {
-			ASF.ArchiLogger.LogNullError(nameof(defaultStringObjects));
+			ASF.ArchiLogger.LogNullError(defaultStringObjects);
 
 			return;
 		}
@@ -322,7 +335,7 @@ public static class Utilities {
 		ResourceSet? currentResourceSet = resourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
 
 		if (currentResourceSet == null) {
-			ASF.ArchiLogger.LogNullError(nameof(currentResourceSet));
+			ASF.ArchiLogger.LogNullError(currentResourceSet);
 
 			return;
 		}

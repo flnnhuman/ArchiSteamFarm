@@ -32,7 +32,7 @@
 [![Crypto donate](https://img.shields.io/badge/Crypto-donate-f7931a.svg?logo=bitcoin)](https://commerce.coinbase.com/checkout/0c23b844-c51b-45f4-9135-8db7c6fcf98e)
 [![PayPal.me donate](https://img.shields.io/badge/PayPal.me-donate-00457c.svg?logo=paypal)](https://paypal.me/JustArchi)
 [![PayPal donate](https://img.shields.io/badge/PayPal-donate-00457c.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HD2P2P3WGS5Y4)
-[![Revolut donate](https://img.shields.io/badge/Revolut-donate-0075eb.svg?logo=revolut)](https://pay.revolut.com/profile/ukaszyxm)
+[![Revolut donate](https://img.shields.io/badge/Revolut-donate-0075eb.svg?logo=revolut)](https://pay.revolut.com/justarchi)
 [![Steam donate](https://img.shields.io/badge/Steam-donate-000000.svg?logo=steam)](https://steamcommunity.com/tradeoffer/new/?partner=46697991&token=0ix2Ruv_)
 
 ---
@@ -43,7 +43,7 @@
 
 ## Description
 
-ASF is a C# application with primary purpose of farming Steam cards from multiple accounts simultaneously. Unlike Idle Master which works only for one account at given time, while requiring Steam client running in the background and launching additional processes imitating "game playing" status, ASF doesn't require any Steam client running in the background, doesn't launch any additional processes and is made to handle unlimited Steam accounts at once. In addition to that, it's meant to be run on servers or other desktop-less machines, and features full cross-OS support, which makes it possible to launch on any operating system with .NET Core runtime, such as Windows, Linux and OS X. ASF is possible thanks to gigantic amount of work done in marvelous **[SteamKit2](https://github.com/SteamRE/SteamKit)** library.
+ASF is a C# application with primary purpose of farming Steam cards from multiple accounts simultaneously. Unlike Idle Master which works only for one account at given time, while requiring Steam client running in the background and launching additional processes imitating "game playing" status, ASF doesn't require any Steam client running in the background, doesn't launch any additional processes and is made to handle unlimited Steam accounts at once. In addition to that, it's meant to be run on servers or other desktop-less machines, and features full cross-OS support, which makes it possible to launch on any operating system with .NET Core runtime, such as Windows, Linux and macOS. ASF is possible thanks to gigantic amount of work done in marvelous **[SteamKit2](https://github.com/SteamRE/SteamKit)** library.
 
 Today, ASF is one of the most versatile Steam power tools, allowing you to make use of many features that were implemented over time. Apart from farming Steam cards, which remains the primary focus, ASF includes bunch of features on its own, such as a possibility to use it as Steam authenticator or chat logger. In addition to that, ASF includes plugin system, thanks to which anybody can further extend it to his/her needs.
 
@@ -62,7 +62,7 @@ Today, ASF is one of the most versatile Steam power tools, allowing you to make 
 - Unique ASF 2FA mechanism allowing ASF to act as a mobile authenticator, if needed
 - STM-like integration for trades, both passive (accepting) and active (sending), ASF can help you complete your sets
 - Special plugin system, which allows you to extend ASF in any way you wish through your own code
-- Powered by .NET Core, cross-OS compatibility, official support for Windows, Linux and OS X
+- Powered by .NET Core, cross-OS compatibility, official support for Windows, Linux and macOS
 - ...and many more!
 
 For learning about even more ASF features, we recommend starting with our **[FAQ entry](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ#what-interesting-features-asf-offers-that-idle-master-does-not)**.
@@ -77,7 +77,7 @@ Detailed guide regarding setting up and using ASF is available on our wiki in **
 
 ### Compatibility / Supported operating systems
 
-ASF officially supports Windows, Linux and OS X operating systems, but it can work anywhere where you can obtain working .NET Core runtime. Please visit **[compatibility](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Compatibility)** section on the wiki for more information regarding environments that ASF can work in.
+ASF officially supports Windows, Linux and macOS operating systems, but it can work anywhere where you can obtain working .NET Core runtime. Please visit **[compatibility](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Compatibility)** section on the wiki for more information regarding environments that ASF can work in.
 
 ---
 

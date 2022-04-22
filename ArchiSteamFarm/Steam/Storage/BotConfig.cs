@@ -35,7 +35,6 @@ using ArchiSteamFarm.IPC.Integration;
 using ArchiSteamFarm.Localization;
 using ArchiSteamFarm.Steam.Data;
 using ArchiSteamFarm.Steam.Integration;
-using ArchiSteamFarm.Storage;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -495,7 +494,7 @@ public sealed class BotConfig {
 			return (false, string.Format(CultureInfo.CurrentCulture, Strings.ErrorConfigPropertyInvalid, nameof(SteamMasterClanID), SteamMasterClanID));
 		}
 
-		if (!string.IsNullOrEmpty(SteamParentalCode) && (SteamParentalCode != "0") && (SteamParentalCode!.Length != SteamParentalCodeLength)) {
+		if (!string.IsNullOrEmpty(SteamParentalCode) && ((SteamParentalCode!.Length != SteamParentalCodeLength) || SteamParentalCode.Any(static character => character is < '0' or > '9'))) {
 			return (false, string.Format(CultureInfo.CurrentCulture, Strings.ErrorConfigPropertyInvalid, nameof(SteamParentalCode), SteamParentalCode));
 		}
 
@@ -589,7 +588,7 @@ public sealed class BotConfig {
 		}
 
 		if (botConfig == null) {
-			ASF.ArchiLogger.LogNullError(nameof(botConfig));
+			ASF.ArchiLogger.LogNullError(botConfig);
 
 			return (null, null);
 		}
@@ -641,18 +640,7 @@ public sealed class BotConfig {
 				break;
 		}
 
-		// TODO: Pending removal, Statistics -> RemoteCommunication migration
-		if ((ASF.GlobalConfig?.Statistics == false) && (botConfig.RemoteCommunication == DefaultRemoteCommunication)) {
-			botConfig.RemoteCommunication = ERemoteCommunication.None;
-		}
-
 		if (!Program.ConfigMigrate) {
-			// TODO: Pending removal, warning for people that disabled config migrate, they need to migrate themselves
-			if (ASF.GlobalConfig?.Statistics == false) {
-				ASF.ArchiLogger.LogGenericWarning(string.Format(CultureInfo.CurrentCulture, Strings.WarningFailedWithError, nameof(Program.ConfigMigrate)));
-				ASF.ArchiLogger.LogGenericWarning(string.Format(CultureInfo.CurrentCulture, Strings.WarningDeprecated, nameof(GlobalConfig.Statistics), nameof(RemoteCommunication)));
-			}
-
 			return (botConfig, null);
 		}
 
