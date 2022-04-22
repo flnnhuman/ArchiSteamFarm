@@ -112,15 +112,15 @@ public static class ASF {
 			throw new InvalidOperationException(nameof(GlobalConfig));
 		}
 
-		if (!PluginsCore.InitPlugins()) {
-			await Task.Delay(SharedInfo.InformationDelay).ConfigureAwait(false);
-		}
+		//if (!PluginsCore.InitPlugins()) {
+		//	await Task.Delay(SharedInfo.InformationDelay).ConfigureAwait(false);
+		//}
 
 		WebBrowser = new WebBrowser(ArchiLogger, GlobalConfig.WebProxy, true);
 
-		await UpdateAndRestart().ConfigureAwait(false);
+		// await UpdateAndRestart().ConfigureAwait(false);
 
-		await PluginsCore.OnASFInitModules(GlobalConfig.AdditionalProperties).ConfigureAwait(false);
+		// await PluginsCore.OnASFInitModules(GlobalConfig.AdditionalProperties).ConfigureAwait(false);
 		await InitRateLimiters().ConfigureAwait(false);
 
 		StringComparer botsComparer = await PluginsCore.GetBotsComparer().ConfigureAwait(false);
@@ -128,19 +128,36 @@ public static class ASF {
 
 		Bot.Init(botsComparer, customMachineInfoProvider);
 
-		if (!Program.Service && !GlobalConfig.Headless && !Console.IsInputRedirected) {
-			Logging.StartInteractiveConsole();
-		}
+		//if (!Program.Service && !GlobalConfig.Headless && !Console.IsInputRedirected) {
+		//	Logging.StartInteractiveConsole();
+		//}
 
-		if (GlobalConfig.IPC) {
-			await ArchiKestrel.Start().ConfigureAwait(false);
-		}
+		// if (GlobalConfig.IPC) {
+		// 	await ArchiKestrel.Start().ConfigureAwait(false);
+		// }
 
-		uint changeNumberToStartFrom = await PluginsCore.GetChangeNumberToStartFrom().ConfigureAwait(false);
+		 uint changeNumberToStartFrom = await PluginsCore.GetChangeNumberToStartFrom().ConfigureAwait(false);
 
 		SteamPICSChanges.Init(changeNumberToStartFrom);
 
-		await RegisterBots().ConfigureAwait(false);
+		// await RegisterBots().ConfigureAwait(false);
+
+		// Ensure that we ask for a list of servers if we don't have any saved servers available
+		IEnumerable<ServerRecord> servers = await GlobalDatabase.ServerListProvider.FetchServerListAsync().ConfigureAwait(false);
+
+		if (!servers.Any()) {
+			ArchiLogger.LogGenericInfo(string.Format(CultureInfo.CurrentCulture, Strings.Initializing, nameof(SteamDirectory)));
+
+			SteamConfiguration steamConfiguration = SteamConfiguration.Create(static builder => builder.WithProtocolTypes(GlobalConfig.SteamProtocols).WithCellID(GlobalDatabase.CellID).WithServerListProvider(GlobalDatabase.ServerListProvider).WithHttpClientFactory(static () => WebBrowser.GenerateDisposableHttpClient()));
+
+			try {
+				await SteamDirectory.LoadAsync(steamConfiguration).ConfigureAwait(false);
+				ArchiLogger.LogGenericInfo(Strings.Success);
+			} catch (Exception e) {
+				ArchiLogger.LogGenericWarningException(e);
+				ArchiLogger.LogGenericWarning(Strings.BotSteamDirectoryInitializationFailed);
+			}
+		}
 
 		if (Program.ConfigWatch) {
 			InitConfigWatchEvents();

@@ -3,7 +3,8 @@
 		<DefaultItemExcludes>$(DefaultItemExcludes);config/**;debug/**;logs/**;overlay/**</DefaultItemExcludes>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
-		<OutputType>Exe</OutputType>
+		<LangVersion>10</LangVersion>
+		<TargetFrameworks>net48;net6.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,13 +17,13 @@
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" />
 		<PackageReference Include="NLog.Web.AspNetCore" />
-		<PackageReference Include="SteamKit2" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
 		<PackageReference Include="System.Composition" />
 		<PackageReference Include="System.Linq.Async" />
 		<PackageReference Include="zxcvbn-core" />
+		<PackageReference Include="Acr.UserDialogs" Version="7.2.0.564" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' != 'net48'">
@@ -77,5 +78,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Link>www\%(RecursiveDir)%(Filename)%(Extension)</Link>
 		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\SteamKit\SteamKit2\SteamKit2\SteamKit2.csproj" />
 	</ItemGroup>
 </Project>

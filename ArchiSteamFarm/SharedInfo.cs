@@ -68,7 +68,7 @@ public static class SharedInfo {
 	internal const string UpdateDirectory = "_old";
 	internal const string WebsiteDirectory = "www";
 
-	internal static string HomeDirectory {
+	public static string HomeDirectory {
 		get {
 			if (!string.IsNullOrEmpty(CachedHomeDirectory)) {
 				// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
@@ -81,7 +81,9 @@ public static class SharedInfo {
 			// If the path goes to our own binary, the user is using OS-specific build, single-file or not, we'll use path to location of that binary then
 			// Otherwise, this path goes to some third-party binary, likely dotnet/mono, the user is using our generic build or other custom binary, we need to trust our base directory then
 			CachedHomeDirectory = Path.GetFileNameWithoutExtension(OS.ProcessFileName) == AssemblyName ? Path.GetDirectoryName(OS.ProcessFileName) ?? AppContext.BaseDirectory : AppContext.BaseDirectory;
-
+			if (CachedHomeDirectory is null) {
+				CachedHomeDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+			}
 			return CachedHomeDirectory;
 		}
 	}

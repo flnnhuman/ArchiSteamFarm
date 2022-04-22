@@ -46,7 +46,7 @@ using SteamKit2;
 
 namespace ArchiSteamFarm;
 
-internal static class Program {
+public static class Program {
 	internal static bool ConfigMigrate { get; private set; } = true;
 	internal static bool ConfigWatch { get; private set; } = true;
 	internal static string? NetworkGroup { get; private set; }
@@ -177,7 +177,7 @@ internal static class Program {
 		}
 	}
 
-	private static async Task<bool> InitASF() {
+	public static async Task<bool> InitASF() {
 		if (!await InitGlobalConfigAndLanguage().ConfigureAwait(false)) {
 			return false;
 		}
@@ -341,25 +341,25 @@ internal static class Program {
 		return true;
 	}
 
-	private static async Task<bool> InitGlobalDatabaseAndServices() {
+	public static async Task<bool> InitGlobalDatabaseAndServices() {
 		string globalDatabaseFile = ASF.GetFilePath(ASF.EFileType.Database);
 
 		if (string.IsNullOrEmpty(globalDatabaseFile)) {
 			throw new ArgumentNullException(nameof(globalDatabaseFile));
 		}
 
-		if (!File.Exists(globalDatabaseFile)) {
+		/*if (!File.Exists(globalDatabaseFile)) {
 			ASF.ArchiLogger.LogGenericInfo(Strings.Welcome);
-			await Task.Delay(SharedInfo.InformationDelay).ConfigureAwait(false);
+			// await Task.Delay(SharedInfo.InformationDelay).ConfigureAwait(false);
 			ASF.ArchiLogger.LogGenericWarning(Strings.WarningPrivacyPolicy);
-			await Task.Delay(SharedInfo.ShortInformationDelay).ConfigureAwait(false);
-		}
+			// await Task.Delay(SharedInfo.ShortInformationDelay).ConfigureAwait(false);
+		}*/
 
 		GlobalDatabase? globalDatabase = await GlobalDatabase.CreateOrLoad(globalDatabaseFile).ConfigureAwait(false);
 
 		if (globalDatabase == null) {
 			ASF.ArchiLogger.LogGenericError(string.Format(CultureInfo.CurrentCulture, Strings.ErrorDatabaseInvalid, globalDatabaseFile));
-			await Task.Delay(SharedInfo.ShortInformationDelay).ConfigureAwait(false);
+			// await Task.Delay(SharedInfo.ShortInformationDelay).ConfigureAwait(false);
 
 			return false;
 		}

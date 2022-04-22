@@ -10,7 +10,7 @@
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// |
+// |                                                    0
 // http://www.apache.org/licenses/LICENSE-2.0
 // |
 // Unless required by applicable law or agreed to in writing, software
@@ -32,7 +32,7 @@ internal static class Debugging {
 	internal static bool IsDebugBuild => false;
 #endif
 
-	internal static bool IsDebugConfigured => ASF.GlobalConfig?.Debug ?? GlobalConfig.DefaultDebug;
+	internal static bool IsDebugConfigured => true;//ASF.GlobalConfig?.Debug ?? GlobalConfig.DefaultDebug;
 
 	internal static bool IsUserDebugging => IsDebugBuild || IsDebugConfigured;
 

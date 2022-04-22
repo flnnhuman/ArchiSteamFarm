@@ -13,7 +13,7 @@
 		<Deterministic>true</Deterministic>
 		<ErrorReport>none</ErrorReport>
 		<LangVersion>latest</LangVersion>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
 		<NeutralLanguage>en</NeutralLanguage>
 		<NoWarn>1591</NoWarn>
 		<Nullable>enable</Nullable>

@@ -34,6 +34,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Acr.UserDialogs;
 using AngleSharp.Dom;
 using ArchiSteamFarm.Collections;
 using ArchiSteamFarm.Core;
@@ -142,7 +143,7 @@ public sealed class Bot : IAsyncDisposable {
 	internal bool IsAccountLimited => AccountFlags.HasFlag(EAccountFlags.LimitedUser) || AccountFlags.HasFlag(EAccountFlags.LimitedUserForce);
 	internal bool IsAccountLocked => AccountFlags.HasFlag(EAccountFlags.Lockdown);
 
-	private readonly CallbackManager CallbackManager;
+	public readonly CallbackManager CallbackManager;
 	private readonly SemaphoreSlim CallbackSemaphore = new(1, 1);
 	private readonly SemaphoreSlim GamesRedeemerInBackgroundSemaphore = new(1, 1);
 
@@ -280,7 +281,8 @@ public sealed class Bot : IAsyncDisposable {
 			builder => {
 				builder.WithCellID(ASF.GlobalDatabase.CellID);
 				builder.WithHttpClientFactory(ArchiWebHandler.GenerateDisposableHttpClient);
-				builder.WithProtocolTypes(ASF.GlobalConfig?.SteamProtocols ?? GlobalConfig.DefaultSteamProtocols);
+				//builder.WithProtocolTypes(ASF.GlobalConfig?.SteamProtocols ?? GlobalConfig.DefaultSteamProtocols);
+				builder.WithProtocolTypes(ProtocolTypes.Udp);
 				builder.WithServerListProvider(ASF.GlobalDatabase.ServerListProvider);
 
 				if (CustomMachineInfoProvider != null) {
@@ -1476,7 +1478,39 @@ public sealed class Bot : IAsyncDisposable {
 		return false;
 	}
 
-	internal static async Task RegisterBot(string botName) {
+	public static async Task<Bot?> RegisterBot(string botName, string password) {
+		string configFilePath = GetFilePath(botName, EFileType.Config);
+
+		if (string.IsNullOrEmpty(configFilePath)) {
+			ASF.ArchiLogger.LogNullError(nameof(configFilePath));
+
+			return null;
+		}
+		BotConfig? botConfig = await BotConfig.CreateOrLoad(configFilePath).ConfigureAwait(false);
+		if (botConfig == null) {
+			ASF.ArchiLogger.LogGenericError(string.Format(Strings.ErrorBotConfigInvalid, configFilePath));
+
+			return null;
+		}
+		if (Debugging.IsDebugConfigured) {
+			ASF.ArchiLogger.LogGenericDebug(configFilePath + ": " + JsonConvert.SerializeObject(botConfig, Formatting.Indented));
+		}
+
+		botConfig.Saving = true;
+		botConfig.SteamLogin = botName;
+		botConfig.SteamPassword = password;
+		await BotConfig.Write(configFilePath, botConfig).ConfigureAwait(false);
+		botConfig.Saving = false;
+		Bots?.TryRemove(botName, out _);
+		await RegisterBot(botName).ConfigureAwait(false);
+		if (Bots.TryGetValue(botName, out Bot bot)) {
+			bot.BotConfig.Enabled = true;
+		}
+
+		return bot;
+	}
+
+	public static async Task RegisterBot(string botName) {
 		if (string.IsNullOrEmpty(botName)) {
 			throw new ArgumentNullException(nameof(botName));
 		}
@@ -1560,7 +1594,7 @@ public sealed class Bot : IAsyncDisposable {
 			BotsSemaphore.Release();
 		}
 
-		await PluginsCore.OnBotInit(bot).ConfigureAwait(false);
+		 await PluginsCore.OnBotInit(bot).ConfigureAwait(false);
 
 		HashSet<ClientMsgHandler>? customHandlers = await PluginsCore.OnBotSteamHandlersInit(bot).ConfigureAwait(false);
 
@@ -1574,7 +1608,7 @@ public sealed class Bot : IAsyncDisposable {
 
 		await bot.InitModules().ConfigureAwait(false);
 
-		bot.InitStart();
+		// bot.InitStart();
 	}
 
 	internal (bool Success, string? Message) RemoveAuthenticator() {
@@ -1777,6 +1811,7 @@ public sealed class Bot : IAsyncDisposable {
 	}
 
 	private async Task Connect(bool force = false) {
+		ArchiLogger.LogGenericDebug("Connect function");
 		if (!force && (!KeepRunning || SteamClient.IsConnected)) {
 			return;
 		}
@@ -1932,6 +1967,7 @@ public sealed class Bot : IAsyncDisposable {
 	}
 
 	private async void HeartBeat(object? state = null) {
+		ArchiLogger.LogGenericDebug("heartbeat");
 		if (!KeepRunning || !IsConnectedAndLoggedOn || (HeartBeatFailures == byte.MaxValue)) {
 			return;
 		}
@@ -2056,7 +2092,7 @@ public sealed class Bot : IAsyncDisposable {
 		return true;
 	}
 
-	private async Task InitModules() {
+	public async Task InitModules() {
 		if (Bots == null) {
 			throw new InvalidOperationException(nameof(Bots));
 		}
@@ -2133,7 +2169,7 @@ public sealed class Bot : IAsyncDisposable {
 		);
 	}
 
-	private void InitStart() {
+	public void InitStart() {
 		if (!BotConfig.Enabled) {
 			ArchiLogger.LogGenericInfo(Strings.BotInstanceNotStartingBecauseDisabled);
 
@@ -2403,6 +2439,8 @@ public sealed class Bot : IAsyncDisposable {
 				}
 
 				break;
+			case EResult.AccountLoginDeniedNeedTwoFactor:
+				return;
 			default:
 				// Generic delay before retrying
 				await Task.Delay(5000).ConfigureAwait(false);
@@ -2738,14 +2776,31 @@ public sealed class Bot : IAsyncDisposable {
 				if (!HasMobileAuthenticator) {
 					RequiredInput = ASF.EUserInputType.TwoFactorAuthentication;
 
-					string? twoFactorCode = await Logging.GetUserInput(ASF.EUserInputType.TwoFactorAuthentication, BotName).ConfigureAwait(false);
-
+					//string? twoFactorCode = await Logging.GetUserInput(ASF.EUserInputType.TwoFactorAuthentication, BotName).ConfigureAwait(false);
+					string? twoFactorCode = string.Empty;
+					PromptResult pResult = await UserDialogs.Instance.PromptAsync(new PromptConfig
+					{
+						InputType = InputType.Default,
+						OkText = "Enter",
+						Title = "Enter your guard code",
+						IsCancellable = false,
+						MaxLength = 5,
+						Placeholder = "xxxxx",
+						AutoCorrectionConfig = AutoCorrectionConfig.No
+					}).ConfigureAwait(false);
+					twoFactorCode = pResult?.Value;
 					// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
-					if (string.IsNullOrEmpty(twoFactorCode) || !SetUserInput(ASF.EUserInputType.TwoFactorAuthentication, twoFactorCode!)) {
+					if (pResult is null || !pResult.Ok  || string.IsNullOrEmpty(twoFactorCode) || !SetUserInput(ASF.EUserInputType.TwoFactorAuthentication, twoFactorCode!)) {
 						ArchiLogger.LogGenericError(string.Format(CultureInfo.CurrentCulture, Strings.ErrorIsInvalid, nameof(twoFactorCode)));
 
 						Stop();
 					}
+					if (!KeepRunning || SteamClient.IsConnected) {
+						return;
+					}
+
+					ArchiLogger.LogGenericInfo(Strings.BotReconnecting);
+					await Connect().ConfigureAwait(false);
 				}
 
 				break;

@@ -20,6 +20,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -51,6 +52,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Debug($"{previousMethodName}() {message}");
+		Debug.WriteLine($"{previousMethodName}() {message}");
 	}
 
 	[PublicAPI]
@@ -62,6 +64,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Debug(exception, $"{previousMethodName}()");
+		Debug.WriteLine(exception, $"{previousMethodName}()");
 	}
 
 	[PublicAPI]
@@ -71,6 +74,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Error($"{previousMethodName}() {message}");
+		Debug.WriteLine($"{previousMethodName}() {message}");
 	}
 
 	[PublicAPI]
@@ -78,6 +82,7 @@ public sealed class ArchiLogger {
 		ArgumentNullException.ThrowIfNull(exception);
 
 		Logger.Error(exception, $"{previousMethodName}()");
+		Debug.WriteLine(exception, $"{previousMethodName}()");
 	}
 
 	[PublicAPI]
@@ -87,6 +92,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Info($"{previousMethodName}() {message}");
+		Debug.WriteLine($"{previousMethodName}() {message}");
 	}
 
 	[PublicAPI]
@@ -96,6 +102,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Trace($"{previousMethodName}() {message}");
+		Debug.WriteLine($"{previousMethodName}() {message}");
 	}
 
 	[PublicAPI]
@@ -105,6 +112,7 @@ public sealed class ArchiLogger {
 		}
 
 		Logger.Warn($"{previousMethodName}() {message}");
+		Debug.WriteLine($"{previousMethodName}() {message}");
 	}
 
 	[PublicAPI]
@@ -112,6 +120,7 @@ public sealed class ArchiLogger {
 		ArgumentNullException.ThrowIfNull(exception);
 
 		Logger.Warn(exception, $"{previousMethodName}()");
+		Debug.WriteLine(exception, $"{previousMethodName}()");
 	}
 
 	[PublicAPI]
@@ -161,6 +170,7 @@ public sealed class ArchiLogger {
 		ArgumentNullException.ThrowIfNull(exception);
 
 		Logger.Fatal(exception, $"{previousMethodName}()");
+		Debug.WriteLine(exception, $"{previousMethodName}()");
 
 		// If LogManager has been initialized already, don't do anything else
 		if (LogManager.Configuration != null) {

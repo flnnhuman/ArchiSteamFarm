@@ -33,7 +33,7 @@ public sealed class BotRequest {
 	/// </summary>
 	[JsonProperty(Required = Required.Always)]
 	[Required]
-	public BotConfig BotConfig { get; private set; } = new();
+	public BotConfig? BotConfig { get; private set; } = new();
 
 	[JsonConstructor]
 	private BotRequest() { }

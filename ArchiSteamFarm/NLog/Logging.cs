@@ -93,11 +93,11 @@ internal static class Logging {
 
 		try {
 			OnUserInputStart();
-
 			try {
 				switch (userInputType) {
 					case ASF.EUserInputType.Login:
 						Console.Write(Bot.FormatBotResponse(Strings.UserInputSteamLogin, botName));
+
 						result = ConsoleReadLine();
 
 						break;

@@ -167,7 +167,7 @@ public sealed class BotConfig {
 	public string? CustomGamePlayedWhileIdle { get; private set; } = DefaultCustomGamePlayedWhileIdle;
 
 	[JsonProperty(Required = Required.DisallowNull)]
-	public bool Enabled { get; private set; } = DefaultEnabled;
+	public bool Enabled { get; set; } = DefaultEnabled;
 
 	[JsonProperty(Required = Required.DisallowNull)]
 	public ImmutableList<EFarmingOrder> FarmingOrders { get; private set; } = DefaultFarmingOrders;
@@ -289,7 +289,7 @@ public sealed class BotConfig {
 	internal bool IsSteamLoginSet { get; set; }
 	internal bool IsSteamParentalCodeSet { get; set; }
 	internal bool IsSteamPasswordSet { get; set; }
-	internal bool Saving { get; set; }
+	public bool Saving { get; set; }
 
 	private string? BackingSteamLogin = DefaultSteamLogin;
 	private string? BackingSteamParentalCode = DefaultSteamParentalCode;
@@ -416,7 +416,7 @@ public sealed class BotConfig {
 	public bool ShouldSerializeUserInterfaceMode() => !Saving || (UserInterfaceMode != DefaultUserInterfaceMode);
 
 	[PublicAPI]
-	public static async Task<bool> Write(string filePath, BotConfig botConfig) {
+	public static async Task<bool> Write(string filePath, BotConfig? botConfig) {
 		if (string.IsNullOrEmpty(filePath)) {
 			throw new ArgumentNullException(nameof(filePath));
 		}
@@ -538,6 +538,26 @@ public sealed class BotConfig {
 		}
 
 		return result;
+	}
+
+	public static async Task<BotConfig?> CreateOrLoad(string filePath)
+	{
+		if (string.IsNullOrEmpty(filePath))
+		{
+			ASF.ArchiLogger.LogNullError(nameof(filePath));
+			return null;
+		}
+
+		BotConfig? botConfig;
+		if (!File.Exists(filePath))
+		{
+			botConfig = new BotConfig();
+			await Write(filePath, botConfig).ConfigureAwait(false);
+			return botConfig;
+		}
+
+		var loadResult = await Load(filePath).ConfigureAwait(false);
+		return loadResult.BotConfig;
 	}
 
 	internal static async Task<(BotConfig? BotConfig, string? LatestJson)> Load(string filePath, string? botName = null) {
