@@ -50,7 +50,7 @@ public static class Program {
 	internal static bool ConfigMigrate { get; private set; } = true;
 	internal static bool ConfigWatch { get; private set; } = true;
 	internal static string? NetworkGroup { get; private set; }
-	internal static bool ProcessRequired { get; private set; }
+	public static bool ProcessRequired { get; set; }
 	internal static bool RestartAllowed { get; private set; } = true;
 	internal static bool Service { get; private set; }
 	internal static bool ShutdownSequenceInitialized { get; private set; }

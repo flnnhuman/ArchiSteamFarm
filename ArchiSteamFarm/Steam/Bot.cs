@@ -282,7 +282,7 @@ public sealed class Bot : IAsyncDisposable {
 				builder.WithCellID(ASF.GlobalDatabase.CellID);
 				builder.WithHttpClientFactory(ArchiWebHandler.GenerateDisposableHttpClient);
 				//builder.WithProtocolTypes(ASF.GlobalConfig?.SteamProtocols ?? GlobalConfig.DefaultSteamProtocols);
-				builder.WithProtocolTypes(ProtocolTypes.Udp);
+				builder.WithProtocolTypes(ProtocolTypes.Tcp);
 				builder.WithServerListProvider(ASF.GlobalDatabase.ServerListProvider);
 
 				if (CustomMachineInfoProvider != null) {
@@ -1530,7 +1530,7 @@ public sealed class Bot : IAsyncDisposable {
 		}
 
 		(BotConfig? botConfig, string? latestJson) = await BotConfig.Load(configFilePath, botName).ConfigureAwait(false);
-
+		botConfig.Enabled = false;
 		if (botConfig == null) {
 			ASF.ArchiLogger.LogGenericError(string.Format(CultureInfo.CurrentCulture, Strings.ErrorBotConfigInvalid, configFilePath));
 
@@ -1734,7 +1734,7 @@ public sealed class Bot : IAsyncDisposable {
 		await Connect().ConfigureAwait(false);
 	}
 
-	internal void Stop(bool skipShutdownEvent = false) {
+	public void Stop(bool skipShutdownEvent = false) {
 		if (!KeepRunning) {
 			return;
 		}
@@ -1808,7 +1808,7 @@ public sealed class Bot : IAsyncDisposable {
 		return gamesToRedeemInBackground;
 	}
 
-	private async Task Connect(bool force = false) {
+	public async Task Connect(bool force = false) {
 		ArchiLogger.LogGenericDebug("Connect function");
 		if (!force && (!KeepRunning || SteamClient.IsConnected)) {
 			return;
@@ -2788,24 +2788,15 @@ public sealed class Bot : IAsyncDisposable {
 
 				break;
 			case EResult.AccountLoginDeniedNeedTwoFactor:
+				break;
+				// disabled
 				if (!HasMobileAuthenticator) {
 					RequiredInput = ASF.EUserInputType.TwoFactorAuthentication;
 
-					//string? twoFactorCode = await Logging.GetUserInput(ASF.EUserInputType.TwoFactorAuthentication, BotName).ConfigureAwait(false);
-					string? twoFactorCode = string.Empty;
-					PromptResult pResult = await UserDialogs.Instance.PromptAsync(new PromptConfig
-					{
-						InputType = InputType.Default,
-						OkText = "Enter",
-						Title = "Enter your guard code",
-						IsCancellable = false,
-						MaxLength = 5,
-						Placeholder = "xxxxx",
-						AutoCorrectionConfig = AutoCorrectionConfig.No
-					}).ConfigureAwait(false);
-					twoFactorCode = pResult?.Value;
+					string? twoFactorCode = await Logging.GetUserInput(ASF.EUserInputType.TwoFactorAuthentication, BotName).ConfigureAwait(false);
+
 					// ReSharper disable once RedundantSuppressNullableWarningExpression - required for .NET Framework
-					if (pResult is null || !pResult.Ok  || string.IsNullOrEmpty(twoFactorCode) || !SetUserInput(ASF.EUserInputType.TwoFactorAuthentication, twoFactorCode!)) {
+					if (string.IsNullOrEmpty(twoFactorCode) || !SetUserInput(ASF.EUserInputType.TwoFactorAuthentication, twoFactorCode!)) {
 						ArchiLogger.LogGenericError(string.Format(CultureInfo.CurrentCulture, Strings.ErrorIsInvalid, nameof(twoFactorCode)));
 
 						Stop();

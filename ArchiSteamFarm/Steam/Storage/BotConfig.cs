@@ -78,7 +78,7 @@ public sealed class BotConfig {
 	public const ArchiCryptoHelper.ECryptoMethod DefaultPasswordFormat = ArchiCryptoHelper.ECryptoMethod.PlainText;
 
 	[PublicAPI]
-	public const bool DefaultPaused = false;
+	public const bool DefaultPaused = true;
 
 	[PublicAPI]
 	public const ERedeemingPreferences DefaultRedeemingPreferences = ERedeemingPreferences.None;

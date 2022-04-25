@@ -878,7 +878,7 @@ public static class ASF {
 		await OnCreatedFile(e.Name, e.FullPath).ConfigureAwait(false);
 	}
 
-	private static async Task RegisterBots() {
+	public static async Task RegisterBots() {
 		if ((GlobalConfig == null) || (GlobalDatabase == null) || (WebBrowser == null)) {
 			throw new ArgumentNullException($"{nameof(GlobalConfig)} || {nameof(GlobalDatabase)} || {nameof(WebBrowser)}");
 		}
