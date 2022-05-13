@@ -507,9 +507,13 @@ public sealed class ArchiHandler : ClientMsgHandler {
 			return;
 		}
 
+		uint ostype;
+		unchecked {
+			ostype = (uint) Bot.OSType;
+		}
 		ClientMsgProtobuf<CMsgClientGamesPlayed> request = new(EMsg.ClientGamesPlayedWithDataBlob) {
 			Body = {
-				client_os_type = (uint) Bot.OSType
+				client_os_type = ostype
 			}
 		};
 
