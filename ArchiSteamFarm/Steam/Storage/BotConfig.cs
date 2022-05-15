@@ -69,7 +69,7 @@ public sealed class BotConfig {
 	public const byte DefaultHoursUntilCardDrops = 3;
 
 	[PublicAPI]
-	public const EPersonaStateFlag DefaultOnlineFlags = 0;
+	public const EPersonaStateFlag DefaultOnlineFlags = EPersonaStateFlag.ClientTypeMobile;
 
 	[PublicAPI]
 	public const EPersonaState DefaultOnlineStatus = EPersonaState.Online;
@@ -120,7 +120,7 @@ public sealed class BotConfig {
 	public const bool DefaultUseLoginKeys = true;
 
 	[PublicAPI]
-	public const ArchiHandler.EUserInterfaceMode DefaultUserInterfaceMode = ArchiHandler.EUserInterfaceMode.Default;
+	public const ArchiHandler.EUserInterfaceMode DefaultUserInterfaceMode = ArchiHandler.EUserInterfaceMode.Mobile;
 
 	internal const byte SteamParentalCodeLength = 4;
 	internal const byte SteamTradeTokenLength = 8;
