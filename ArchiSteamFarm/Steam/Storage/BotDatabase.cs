@@ -36,7 +36,7 @@ using Newtonsoft.Json;
 
 namespace ArchiSteamFarm.Steam.Storage;
 
-internal sealed class BotDatabase : SerializableFile {
+public sealed class BotDatabase : SerializableFile {
 	[JsonProperty(Required = Required.DisallowNull)]
 	internal readonly ConcurrentHashSet<uint> FarmingBlacklistAppIDs = new();
 
@@ -75,7 +75,7 @@ internal sealed class BotDatabase : SerializableFile {
 		}
 	}
 
-	internal MobileAuthenticator? MobileAuthenticator {
+	public MobileAuthenticator? MobileAuthenticator {
 		get => BackingMobileAuthenticator;
 
 		set {

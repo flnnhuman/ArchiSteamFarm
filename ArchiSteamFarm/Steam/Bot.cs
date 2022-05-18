@@ -137,7 +137,7 @@ public sealed class Bot : IAsyncDisposable {
 	[PublicAPI]
 	public SteamFriends SteamFriends { get; }
 
-	internal readonly BotDatabase BotDatabase;
+	public readonly BotDatabase BotDatabase;
 
 	internal bool CanReceiveSteamCards => !IsAccountLimited && !IsAccountLocked;
 	internal bool IsAccountLimited => AccountFlags.HasFlag(EAccountFlags.LimitedUser) || AccountFlags.HasFlag(EAccountFlags.LimitedUserForce);

@@ -69,7 +69,7 @@ public sealed class MobileAuthenticator : IDisposable {
 
 	public void Dispose() => CachedDeviceID.Dispose();
 
-	internal async Task<string?> GenerateToken() {
+	public async Task<string?> GenerateToken() {
 		if (Bot == null) {
 			throw new InvalidOperationException(nameof(Bot));
 		}
@@ -83,7 +83,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		return GenerateTokenForTime(time);
 	}
 
-	internal async Task<HashSet<Confirmation>?> GetConfirmations() {
+	public async Task<HashSet<Confirmation>?> GetConfirmations() {
 		if (Bot == null) {
 			throw new InvalidOperationException(nameof(Bot));
 		}
@@ -194,7 +194,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		return result;
 	}
 
-	internal async Task<bool> HandleConfirmations(IReadOnlyCollection<Confirmation> confirmations, bool accept) {
+	public async Task<bool> HandleConfirmations(IReadOnlyCollection<Confirmation> confirmations, bool accept) {
 		if ((confirmations == null) || (confirmations.Count == 0)) {
 			throw new ArgumentNullException(nameof(confirmations));
 		}
@@ -257,9 +257,9 @@ public sealed class MobileAuthenticator : IDisposable {
 		return true;
 	}
 
-	internal void Init(Bot bot) => Bot = bot ?? throw new ArgumentNullException(nameof(bot));
+	public void Init(Bot bot) => Bot = bot ?? throw new ArgumentNullException(nameof(bot));
 
-	internal static async Task ResetSteamTimeDifference() {
+	public static async Task ResetSteamTimeDifference() {
 		if ((SteamTimeDifference == null) && (LastSteamTimeCheck == DateTime.MinValue)) {
 			return;
 		}
@@ -281,7 +281,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		}
 	}
 
-	private string? GenerateConfirmationHash(uint time, string? tag = null) {
+	public string? GenerateConfirmationHash(uint time, string? tag = null) {
 		if (time == 0) {
 			throw new ArgumentOutOfRangeException(nameof(time));
 		}
@@ -334,7 +334,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		return Convert.ToBase64String(hash);
 	}
 
-	private string? GenerateTokenForTime(uint time) {
+	public string? GenerateTokenForTime(uint time) {
 		if (time == 0) {
 			throw new ArgumentOutOfRangeException(nameof(time));
 		}
@@ -394,7 +394,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		);
 	}
 
-	private async Task<uint> GetSteamTime() {
+	public async Task<uint> GetSteamTime() {
 		if (Bot == null) {
 			throw new InvalidOperationException(nameof(Bot));
 		}
@@ -429,7 +429,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		}
 	}
 
-	private static async Task LimitConfirmationsRequestsAsync() {
+	public static async Task LimitConfirmationsRequestsAsync() {
 		if (ASF.ConfirmationsSemaphore == null) {
 			throw new InvalidOperationException(nameof(ASF.ConfirmationsSemaphore));
 		}
@@ -450,7 +450,7 @@ public sealed class MobileAuthenticator : IDisposable {
 		);
 	}
 
-	private async Task<(bool Success, string? Result)> ResolveDeviceID() {
+	public async Task<(bool Success, string? Result)> ResolveDeviceID() {
 		if (Bot == null) {
 			throw new ArgumentNullException(nameof(Bot));
 		}
